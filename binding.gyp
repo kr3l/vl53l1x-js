@@ -5,8 +5,8 @@
         "cflags_cc!": [ "-fno-exceptions" ],
         "sources": [
             "cppsrc/main.cpp",
-			"cppsrc/VL53L1X/VL53L1X.cpp",
-			"cppsrc/VL53L1X/VL53L1XWrapper.cpp"
+			"cppsrc/ST/VL53L1X_api.c",
+			"cppsrc/wrapper/VL53L1X_api_wrapper.cpp"
         ],
         'include_dirs': [
             "<!@(node -p \"require('node-addon-api').include\")"
