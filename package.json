@@ -1,7 +1,7 @@
 {
-  "name": "test-addon",
+  "name": "vl53xl1-js",
   "version": "1.0.0",
-  "description": "",
+  "description": "js library for the VL53L1X Laser Ranger",
   "main": "index.js",
   "gypfile": true,
   "scripts": {
