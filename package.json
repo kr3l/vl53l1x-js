@@ -1,5 +1,5 @@
 {
-  "name": "vl53xl1-js",
+  "name": "vl53l1x-js",
   "version": "1.0.0",
   "description": "js library for the VL53L1X Laser Ranger",
   "main": "./build/Release/VL53L1X",
