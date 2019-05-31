@@ -26,7 +26,7 @@ async function sleep(ms) {
 
 async function main () {
 
-    const distance = new VL53L1X.VL53L1X();
+    const distance = new VL53L1X.Sensor();
 
     distance.begin();
 
