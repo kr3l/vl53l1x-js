@@ -2,7 +2,7 @@
   "name": "vl53xl1-js",
   "version": "1.0.0",
   "description": "js library for the VL53L1X Laser Ranger",
-  "main": "index.js",
+  "main": "./build/Release/VL53L1X",
   "gypfile": true,
   "scripts": {
     "install": "node-gyp rebuild",
