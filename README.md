@@ -8,15 +8,15 @@ is in turn based on code written by Nathan Seidle @ SparkFun Electronics, April 
 # Installation
 
 ```
-npm install https://github.com/kr3l/vl53l1x-js#0.0.2 --save
+npm install https://github.com/kr3l/vl53l1x-js#1.0.1 --save
 ```
 
-This will start a node-gyp rebuild.
+This should start a node-gyp rebuild.
 
 # Usage
 
 ```js
-const VL53L1X = require('vl53xl1-js');
+const VL53L1X = require('vl53l1x-js');
 
 async function sleep(ms) {
     return new Promise((resolve, reject) => {
@@ -26,7 +26,7 @@ async function sleep(ms) {
 
 async function main () {
 
-    const distance = new VL53L1X();
+    const distance = new VL53L1X.VL53L1X();
 
     distance.begin();
 
