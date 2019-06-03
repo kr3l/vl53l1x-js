@@ -8,4 +8,6 @@ namespace VL53L1X_API_WRAPPER {
 
     Napi::Value VL53L1X_GetSWVersion_Wrapped(const Napi::CallbackInfo& info);
 
+    Napi::Value VL53L1X_SetI2CAddress_Wrapped(const Napi::CallbackInfo& info);
+
 }
