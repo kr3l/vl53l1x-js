@@ -1,5 +1,7 @@
 #include <napi.h>
+extern "C" {
 #include "../ST/VL53L1X_api.h"
+}
 
 namespace VL53L1X_API_WRAPPER {
     Napi::Object Init(Napi::Env env, Napi::Object exports);
