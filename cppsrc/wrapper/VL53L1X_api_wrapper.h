@@ -7,10 +7,10 @@
 #include <iostream>
 #include <unistd.h>
 #include <stdint.h>
+#include <sstream>
+#include <string>
 
-extern "C" {
 #include "../ST/VL53L1X_api.h"
-}
 
 namespace VL53L1X_API_WRAPPER {
     Napi::Object Init(Napi::Env env, Napi::Object exports);

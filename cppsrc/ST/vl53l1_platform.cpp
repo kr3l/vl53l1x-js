@@ -47,7 +47,18 @@ int8_t VL53L1_ReadMulti(uint16_t dev, uint16_t index, uint8_t *pdata, uint32_t c
 }
 
 int8_t VL53L1_WrByte(uint16_t dev, uint16_t index, uint8_t data) {
-	return 0; // to be implemented
+    char buffer[3] = {0};
+	buffer[0] = index >> 8;
+	buffer[1] = index & 0x00FF;
+    buffer[2] = data;
+	int length = 3;			//<<< Number of bytes to write
+
+
+	if (write(dev, buffer, length) != length)
+	{
+		return 1;
+	}
+    return 0; //All done!
 }
 
 int8_t VL53L1_WrWord(uint16_t dev, uint16_t index, uint16_t data) {
@@ -59,7 +70,25 @@ int8_t VL53L1_WrDWord(uint16_t dev, uint16_t index, uint32_t data) {
 }
 
 int8_t VL53L1_RdByte(uint16_t dev, uint16_t index, uint8_t *data) {
-	return 0; // to be implemented
+    char buffer1[2] = {0};
+	buffer1[0] = index >> 8;
+	buffer1[1] = index & 0x00FF;
+	int length1 = 2;			//<<< Number of bytes to write
+    write(dev, buffer1, length1);
+
+
+   //unsigned char result;
+   char buffer2[1] = {0};
+   int length2 = 1;			//<<< Number of bytes to read
+	if (read(dev, buffer2, length2) != length2){
+		//ERROR HANDLING: i2c transaction failed
+	  return (1);
+	}
+	else
+	{
+       *data = buffer2[0];
+	}
+   return 0;
 }
 
 int8_t VL53L1_RdWord(uint16_t dev, uint16_t index, uint16_t *data) {

@@ -40,7 +40,10 @@ Napi::Value VL53L1X_API_WRAPPER::VL53L1X_GetSWVersion_Wrapped(const Napi::Callba
     Napi::Env env = info.Env();
 
     VL53L1X_Version_t v;
-    VL53L1X_GetSWVersion(&v);
+    VL53L1X_ERROR status = VL53L1X_GetSWVersion(&v);
+    if (status != 0) {
+        Napi::TypeError::New(env, "Status not 0").ThrowAsJavaScriptException();
+    }
     Napi::Object obj = Napi::Object::New(env);
 
     obj.Set(Napi::String::New(env, "major"), Napi::Number::New(env, v.major));
@@ -61,7 +64,9 @@ Napi::Value VL53L1X_API_WRAPPER::VL53L1X_SetI2CAddress_Wrapped(const Napi::Callb
     uint8_t new_address = (uint8_t) napi_new_address.Uint32Value();
 
     VL53L1X_ERROR status = VL53L1X_SetI2CAddress(dev, new_address);
-
+    if (status != 0) {
+        Napi::TypeError::New(env, "Status not 0").ThrowAsJavaScriptException();
+    }
     return Napi::Number::New(env, status);
 }
 
@@ -72,7 +77,9 @@ Napi::Value VL53L1X_API_WRAPPER::VL53L1X_SensorInit_Wrapped(const Napi::Callback
     uint16_t dev = (uint16_t) napi_dev.Uint32Value();
 
     VL53L1X_ERROR status = VL53L1X_SensorInit(dev);
-
+    if (status != 0) {
+        Napi::TypeError::New(env, "Status not 0").ThrowAsJavaScriptException();
+    }
     return Napi::Number::New(env, status);
 }
 
@@ -83,7 +90,9 @@ Napi::Value VL53L1X_API_WRAPPER::VL53L1X_StartRanging_Wrapped(const Napi::Callba
     uint16_t dev = (uint16_t) napi_dev.Uint32Value();
 
     VL53L1X_ERROR status = VL53L1X_StartRanging(dev);
-
+    if (status != 0) {
+        Napi::TypeError::New(env, "Status not 0").ThrowAsJavaScriptException();
+    }
     return Napi::Number::New(env, status);
 }
 
@@ -93,9 +102,16 @@ Napi::Value VL53L1X_API_WRAPPER::VL53L1X_CheckForDataReady_Wrapped(const Napi::C
     Napi::Number napi_dev = info[0].As<Napi::Number>();
     uint16_t dev = (uint16_t) napi_dev.Uint32Value();
 
-    uint8_t isDataReady;
+    uint8_t isDataReady = 3;
 
     VL53L1X_ERROR status = VL53L1X_CheckForDataReady(dev, &isDataReady);
+
+    if (status != 0) {
+        std::stringstream ss;
+        ss << "Status not 0: [" << status << "]";
+        std::string s = ss.str();
+        Napi::TypeError::New(env, s).ThrowAsJavaScriptException();
+    }
 
     return Napi::Number::New(env, isDataReady);
 }
@@ -109,7 +125,9 @@ Napi::Value VL53L1X_API_WRAPPER::VL53L1X_GetDistance_Wrapped(const Napi::Callbac
     uint16_t distance;
 
     VL53L1X_ERROR status = VL53L1X_GetDistance(dev, &distance);
-
+    if (status != 0) {
+        Napi::TypeError::New(env, "Status not 0").ThrowAsJavaScriptException();
+    }
     return Napi::Number::New(env, distance);
 }
 
@@ -120,7 +138,9 @@ Napi::Value VL53L1X_API_WRAPPER::VL53L1X_ClearInterrupt_Wrapped(const Napi::Call
     uint16_t dev = (uint16_t) napi_dev.Uint32Value();
 
     VL53L1X_ERROR status = VL53L1X_ClearInterrupt(dev);
-
+    if (status != 0) {
+        Napi::TypeError::New(env, "Status not 0").ThrowAsJavaScriptException();
+    }
     return Napi::Number::New(env, status);
 }
 
@@ -131,6 +151,8 @@ Napi::Value VL53L1X_API_WRAPPER::VL53L1X_StopRanging_Wrapped(const Napi::Callbac
     uint16_t dev = (uint16_t) napi_dev.Uint32Value();
 
     VL53L1X_ERROR status = VL53L1X_StopRanging(dev);
-
+    if (status != 0) {
+        Napi::TypeError::New(env, "Status not 0").ThrowAsJavaScriptException();
+    }
     return Napi::Number::New(env, status);
 }

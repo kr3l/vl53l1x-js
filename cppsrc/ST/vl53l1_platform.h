@@ -8,6 +8,14 @@
 
 #include "vl53l1_types.h"
 
+#include <unistd.h>				//Needed for I2C port
+#include <fcntl.h>				//Needed for I2C port
+#include <sys/ioctl.h>			//Needed for I2C port
+#include <linux/i2c-dev.h>		//Needed for I2C port
+#include <iostream>
+#include <unistd.h>
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C"
 {
