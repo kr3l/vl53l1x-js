@@ -1,8 +1,15 @@
 #include "VL53L1X_api_wrapper.h"
 
 Napi::Object VL53L1X_API_WRAPPER::Init(Napi::Env env, Napi::Object exports) {
-    exports.Set("GetSWVersion", Napi::Function::New(env, VL53L1X_API_WRAPPER::VL53L1X_GetSWVersion_Wrapped));
     exports.Set("SetupPort", Napi::Function::New(env, VL53L1X_API_WRAPPER::SetupPort));
+    exports.Set("GetSWVersion", Napi::Function::New(env, VL53L1X_API_WRAPPER::VL53L1X_GetSWVersion_Wrapped));
+    exports.Set("SensorInit", Napi::Function::New(env, VL53L1X_API_WRAPPER::VL53L1X_SensorInit_Wrapped));
+    exports.Set("StartRanging", Napi::Function::New(env, VL53L1X_API_WRAPPER::VL53L1X_StartRanging_Wrapped));
+    exports.Set("CheckForDataReady", Napi::Function::New(env, VL53L1X_API_WRAPPER::VL53L1X_CheckForDataReady_Wrapped));
+    exports.Set("GetDistance", Napi::Function::New(env, VL53L1X_API_WRAPPER::VL53L1X_GetDistance_Wrapped));
+    exports.Set("ClearInterrupt", Napi::Function::New(env, VL53L1X_API_WRAPPER::VL53L1X_ClearInterrupt_Wrapped));
+    exports.Set("StopRanging", Napi::Function::New(env, VL53L1X_API_WRAPPER::VL53L1X_StopRanging_Wrapped));
+
     return exports;
 }
 
@@ -44,7 +51,7 @@ Napi::Value VL53L1X_API_WRAPPER::VL53L1X_GetSWVersion_Wrapped(const Napi::Callba
     return obj;
 }
 
-Napi::Value VL53L1X_SetI2CAddress_Wrapped(const Napi::CallbackInfo& info) {
+Napi::Value VL53L1X_API_WRAPPER::VL53L1X_SetI2CAddress_Wrapped(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
 
     Napi::Number napi_dev = info[0].As<Napi::Number>();
@@ -54,6 +61,76 @@ Napi::Value VL53L1X_SetI2CAddress_Wrapped(const Napi::CallbackInfo& info) {
     uint8_t new_address = (uint8_t) napi_new_address.Uint32Value();
 
     VL53L1X_ERROR status = VL53L1X_SetI2CAddress(dev, new_address);
+
+    return Napi::Number::New(env, status);
+}
+
+Napi::Value VL53L1X_API_WRAPPER::VL53L1X_SensorInit_Wrapped(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    Napi::Number napi_dev = info[0].As<Napi::Number>();
+    uint16_t dev = (uint16_t) napi_dev.Uint32Value();
+
+    VL53L1X_ERROR status = VL53L1X_SensorInit(dev);
+
+    return Napi::Number::New(env, status);
+}
+
+Napi::Value VL53L1X_API_WRAPPER::VL53L1X_StartRanging_Wrapped(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    Napi::Number napi_dev = info[0].As<Napi::Number>();
+    uint16_t dev = (uint16_t) napi_dev.Uint32Value();
+
+    VL53L1X_ERROR status = VL53L1X_StartRanging(dev);
+
+    return Napi::Number::New(env, status);
+}
+
+Napi::Value VL53L1X_API_WRAPPER::VL53L1X_CheckForDataReady_Wrapped(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    Napi::Number napi_dev = info[0].As<Napi::Number>();
+    uint16_t dev = (uint16_t) napi_dev.Uint32Value();
+
+    uint8_t isDataReady;
+
+    VL53L1X_ERROR status = VL53L1X_CheckForDataReady(dev, &isDataReady);
+
+    return Napi::Number::New(env, isDataReady);
+}
+
+Napi::Value VL53L1X_API_WRAPPER::VL53L1X_GetDistance_Wrapped(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    Napi::Number napi_dev = info[0].As<Napi::Number>();
+    uint16_t dev = (uint16_t) napi_dev.Uint32Value();
+
+    uint16_t distance;
+
+    VL53L1X_ERROR status = VL53L1X_GetDistance(dev, &distance);
+
+    return Napi::Number::New(env, distance);
+}
+
+Napi::Value VL53L1X_API_WRAPPER::VL53L1X_ClearInterrupt_Wrapped(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    Napi::Number napi_dev = info[0].As<Napi::Number>();
+    uint16_t dev = (uint16_t) napi_dev.Uint32Value();
+
+    VL53L1X_ERROR status = VL53L1X_ClearInterrupt(dev);
+
+    return Napi::Number::New(env, status);
+}
+
+Napi::Value VL53L1X_API_WRAPPER::VL53L1X_StopRanging_Wrapped(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    Napi::Number napi_dev = info[0].As<Napi::Number>();
+    uint16_t dev = (uint16_t) napi_dev.Uint32Value();
+
+    VL53L1X_ERROR status = VL53L1X_StopRanging(dev);
 
     return Napi::Number::New(env, status);
 }

@@ -18,5 +18,11 @@ namespace VL53L1X_API_WRAPPER {
     Napi::Value VL53L1X_GetSWVersion_Wrapped(const Napi::CallbackInfo& info);
 
     Napi::Value VL53L1X_SetI2CAddress_Wrapped(const Napi::CallbackInfo& info);
+    Napi::Value VL53L1X_SensorInit_Wrapped(const Napi::CallbackInfo& info);
+    Napi::Value VL53L1X_StartRanging_Wrapped(const Napi::CallbackInfo& info);
+    Napi::Value VL53L1X_CheckForDataReady_Wrapped(const Napi::CallbackInfo& info);
+    Napi::Value VL53L1X_GetDistance_Wrapped(const Napi::CallbackInfo& info);
+    Napi::Value VL53L1X_ClearInterrupt_Wrapped(const Napi::CallbackInfo& info);
+    Napi::Value VL53L1X_StopRanging_Wrapped(const Napi::CallbackInfo& info);
 
 }
