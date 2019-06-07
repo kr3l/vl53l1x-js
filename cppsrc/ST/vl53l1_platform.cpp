@@ -62,7 +62,18 @@ int8_t VL53L1_WrByte(uint16_t dev, uint16_t index, uint8_t data) {
 }
 
 int8_t VL53L1_WrWord(uint16_t dev, uint16_t index, uint16_t data) {
-	return 0; // to be implemented
+    char buffer[4] = {0};
+	buffer[0] = index >> 8;
+	buffer[1] = index & 0x00FF;
+    buffer[2] = data >> 8;
+    buffer[3] = data & 0x00FF;
+	int length = 4;			//<<< Number of bytes to write
+
+	if (write(dev, buffer, length) != length)
+	{
+		return (1);
+	}
+    return (0); //All done!
 }
 
 int8_t VL53L1_WrDWord(uint16_t dev, uint16_t index, uint32_t data) {
@@ -75,24 +86,34 @@ int8_t VL53L1_RdByte(uint16_t dev, uint16_t index, uint8_t *data) {
 	buffer1[1] = index & 0x00FF;
 	int length1 = 2;			//<<< Number of bytes to write
     write(dev, buffer1, length1);
+    int length2 = 1;			//<<< Number of bytes to read
+	if (read(dev, data, length2) != length2){
+		//ERROR HANDLING: i2c transaction failed
+	  return (1);
+	}
+   return 0;
+}
 
+int8_t VL53L1_RdWord(uint16_t dev, uint16_t index, uint16_t *data) {
+   unsigned int result;
+   char buffer1[2] = {0};
+   buffer1[0] = index >> 8;
+   buffer1[1] = index & 0x00FF;
+   int length1 = 2;			//<<< Number of bytes to write
+   write(dev, buffer1, length1);
 
-   //unsigned char result;
-   char buffer2[1] = {0};
-   int length2 = 1;			//<<< Number of bytes to read
+   char buffer2[2] = {0};
+   int length2 = 2;			//<<< Number of bytes to read
 	if (read(dev, buffer2, length2) != length2){
 		//ERROR HANDLING: i2c transaction failed
 	  return (1);
 	}
 	else
 	{
-       *data = buffer2[0];
+       result = buffer2[0] << 8 | buffer2[1];
+       *data = result;
 	}
-   return 0;
-}
-
-int8_t VL53L1_RdWord(uint16_t dev, uint16_t index, uint16_t *data) {
-	return 0; // to be implemented
+   return (0);
 }
 
 int8_t VL53L1_RdDWord(uint16_t dev, uint16_t index, uint32_t *data) {
@@ -100,5 +121,6 @@ int8_t VL53L1_RdDWord(uint16_t dev, uint16_t index, uint32_t *data) {
 }
 
 int8_t VL53L1_WaitMs(uint16_t dev, int32_t wait_ms){
+    usleep(wait_ms);
 	return 0; // to be implemented
 }

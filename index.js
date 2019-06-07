@@ -27,7 +27,7 @@ async function main () {
         const status1 = VL53L1X.StartRanging(device);
         console.log(`StartRanging status: ${status1}`);
 
-        while (true) {
+        for (let i = 0; i < 20; i += 1) {
             console.log('CheckForDataReady...');
             let isReady = 0;
             while (!isReady) {
@@ -40,10 +40,11 @@ async function main () {
             console.log('GetDistance...');
             const distance = VL53L1X.GetDistance(device);
             console.log(`Distance = ${distance}`);
+            VL53L1X.ClearInterrupt(device);
             await sleep(1000);
         }
     } finally {
-        VL53L1X.ClearInterrupt(device);
+
         VL53L1X.StopRanging(device);
     }
 }
