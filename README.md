@@ -1,5 +1,6 @@
 # vl53l1x-js
-js library for the VL53L1X Laser Ranger
+
+Javascript library for the VL53L1X Laser Ranger. It wraps the ST C++ API code using napi.
 
 # Installation
 
@@ -8,6 +9,42 @@ npm install https://github.com/kr3l/vl53l1x-js#1.0.1 --save
 ```
 
 This should start a node-gyp rebuild.
+
+# Usage
+
+
+```js
+const VL53L1X = require('vl53xl1-js');
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function main () {
+    const device = VL53L1X.SetupPort();
+    VL53L1X.SensorInit(device);
+
+    try {
+        VL53L1X.StartRanging(device);
+
+        for (let i = 0; i < 100; i += 1) {
+            let isReady = 0;
+            while (!isReady) {
+                isReady = VL53L1X.CheckForDataReady(device);
+                await sleep(100);
+            }
+            const distance = VL53L1X.GetDistance(device);
+            console.log(`Distance = ${distance}`);
+            VL53L1X.ClearInterrupt(device);
+        }
+    } finally {
+
+        VL53L1X.StopRanging(device);
+    }
+}
+
+main();
+```
 
 # References
 
@@ -20,35 +57,3 @@ The wrapping is based on the excellent tutorial at <https://medium.com/@atulanan
 # Remaining work
 
 The basics work, but not all methods in ```vl53l1_platform.cpp``` are exposed to javascript yet. Not even all methods in ```vl53l1_platform.cpp``` are implemented already.
-
-# Usage
-
-```js
-const VL53L1X = require('./index');
-
-async function sleep(ms) {
-    return new Promise((resolve, reject) => {
-          setTimeout(resolve, ms);
-    });
-}
-
-async function main () {
-
-    const distance = new VL53L1X();
-
-    distance.begin();
-
-    distance.startMeasurement(0);
-    for (let i = 0; i < 100; i += 1) {
-        while(distance.newDataReady() == false){
-            await sleep(10);
-        }
-        await sleep(100); // optional
-
-        console.log(`Distance(mm): ${distance.getDistance()}`);
-
-    }
-}
-
-main();
-```
