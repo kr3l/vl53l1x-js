@@ -2,6 +2,8 @@
 
 Javascript library for the VL53L1X Laser Ranger. It wraps the ST C++ API code using napi.
 
+Tested on Raspberry PI Zero.
+
 # Installation
 
 ```
