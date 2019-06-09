@@ -9,6 +9,7 @@ Napi::Object VL53L1X_API_WRAPPER::Init(Napi::Env env, Napi::Object exports) {
     exports.Set("GetDistance", Napi::Function::New(env, VL53L1X_API_WRAPPER::VL53L1X_GetDistance_Wrapped));
     exports.Set("ClearInterrupt", Napi::Function::New(env, VL53L1X_API_WRAPPER::VL53L1X_ClearInterrupt_Wrapped));
     exports.Set("StopRanging", Napi::Function::New(env, VL53L1X_API_WRAPPER::VL53L1X_StopRanging_Wrapped));
+    exports.Set("GetSensorId", Napi::Function::New(env, VL53L1X_API_WRAPPER::VL53L1X_GetSensorId_Wrapped));
 
     return exports;
 }
@@ -155,4 +156,19 @@ Napi::Value VL53L1X_API_WRAPPER::VL53L1X_StopRanging_Wrapped(const Napi::Callbac
         Napi::TypeError::New(env, "Status not 0").ThrowAsJavaScriptException();
     }
     return Napi::Number::New(env, status);
+}
+
+Napi::Value VL53L1X_API_WRAPPER::VL53L1X_GetSensorId_Wrapped(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    Napi::Number napi_dev = info[0].As<Napi::Number>();
+    uint16_t dev = (uint16_t) napi_dev.Uint32Value();
+
+    uint16_t sensorId;
+
+    VL53L1X_ERROR status = VL53L1X_GetSensorId(dev, &sensorId);
+    if (status != 0) {
+        Napi::TypeError::New(env, "Status not 0").ThrowAsJavaScriptException();
+    }
+    return Napi::Number::New(env, sensorId);
 }

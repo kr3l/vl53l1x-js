@@ -15,6 +15,11 @@ async function main () {
     const device = VL53L1X.SetupPort();
     console.log(`Device: ${device}`);
 
+    console.log('GetSensorId...');
+    const sensorId = VL53L1X.GetSensorId(device);
+    console.log(sensorId);
+
+
     console.log('SensorInit...');
     const status = VL53L1X.SensorInit(device);
     console.log(`SensorInit status: ${status}`);
