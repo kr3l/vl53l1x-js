@@ -1,50 +1,36 @@
-const VL53L1X = require('./index'); // require('vl53xl1-js')
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
+const VL53L1X = require('./vl53l1x');
+const I2C = require('raspi-i2c').I2C;
 
 async function main () {
-    console.log(VL53L1X);
+    const sensor = new VL53L1X({
+        i2c: new I2C(),
+    });
 
-    console.log('GetSWVersion...');
-    const a = VL53L1X.GetSWVersion();
-    console.log(a);
+    const sensorId = await sensor.getSensorId();
+    console.log(`sensorId = ${sensorId}`);
+    console.log(sensorId);  // EEAC instead of 0xEEAC ?
 
-    console.log('SetupPort...');
-    const device = VL53L1X.SetupPort();
-    console.log(`Device: ${device}`);
-
-    console.log('GetSensorId...');
-    const sensorId = VL53L1X.GetSensorId(device);
-    console.log(sensorId);
-
-
-    console.log('SensorInit...');
-    const status = VL53L1X.SensorInit(device);
-    console.log(`SensorInit status: ${status}`);
+    console.log('sensor init');
+    await sensor.sensorInit();
 
     try {
         console.log('StartRanging...');
-        const status1 = VL53L1X.StartRanging(device);
-        console.log(`StartRanging status: ${status1}`);
+        await sensor.startRanging();
         const start = new Date();
         for (let i = 0; i < 100; i += 1) {
-            let isReady = 0;
-            while (!isReady) {
-                isReady = VL53L1X.CheckForDataReady(device);
-                await sleep(10);
-            }
-            const distance = VL53L1X.GetDistance(device);
+            console.log('waitForDataReady...');
+            await sensor.waitForDataReady();
+            console.log('getDistance...');
+            const distance = await sensor.getDistance();
             console.log(`Distance = ${distance}`);
-            VL53L1X.ClearInterrupt(device);
+            await sensor.clearInterrupt();
             // await sleep(1000);
         }
         const end = new Date();
         console.log(`Rate: ${100000/(end-start)}Hz`);
     } finally {
 
-        VL53L1X.StopRanging(device);
+        await sensor.stopRanging();
     }
 }
 

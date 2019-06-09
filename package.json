@@ -1,19 +1,14 @@
 {
   "name": "vl53l1x-js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "js library for the VL53L1X Laser Ranger",
-  "main": "index.js",
-  "gypfile": true,
+  "main": "vl53l1x.js",
   "scripts": {
-    "install": "node-gyp rebuild",
-    "clean": "node-gyp clean"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "node-gyp": "^4.0.0"
-  },
+  "author": "kr3l",
   "dependencies": {
-    "node-addon-api": "^1.6.3"
+    "raspi-i2c": "6.2.1",
+    "pigpio": "^1.2.1"
   }
 }
