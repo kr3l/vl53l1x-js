@@ -8,7 +8,7 @@ Tested on Raspberry PI Zero.
 # Installation
 
 ```
-npm install https://github.com/kr3l/vl53l1x-js#1.0.1 --save
+npm install https://github.com/kr3l/vl53l1x-js#1.2.0 --save
 ```
 
 # Usage
