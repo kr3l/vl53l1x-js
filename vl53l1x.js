@@ -595,6 +595,37 @@ class VL53L1X {
         await this.writeWord(ALGO__CROSSTALK_COMPENSATION_PLANE_OFFSET_KCPS, (val<<9)/1000);
     }
 
+    async calculateXTalkCalibration(dist) {
+        //console.log("Calibrating cross talk...");
+
+        await this.startRanging();
+        let avgDist = 0;
+        let avgSPADnum = 0;
+        let avg_sr = 0;
+        for (let i = 0; i < 50; i++) {
+            let tmp = 0;
+            while (tmp === 0) {
+                tmp = await this.checkForDataReady();
+            }
+            let sr = await this.getSignalRate();
+            let distance = await this.getDistance();
+            //console.log(`${distance} mm`);
+            await this.clearInterrupt();
+            let spad_num = await this.getSpadNb();
+            avgDist = avgDist + distance;
+            avgSPADnum += spad_num;
+            avg_sr += sr;
+        }
+
+        await this.stopRanging();
+        avgDist = avgDist / 50;
+        avgSPADnum = avgSPADnum / 50;
+        avg_sr = avg_sr / 50;
+        const calcXtalk = 512 * (avg_sr * (1 - (avgDist/dist))) / avgSPADnum;
+        //console.log(`Average Distance: ${avgDist} mm\n`);
+        return calcXtalk;
+    }
+
     //Threshold
     getDistanceThresholdLow() {
         return this.readWord(SYSTEM__THRESH_LOW);
