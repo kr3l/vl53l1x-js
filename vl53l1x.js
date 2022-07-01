@@ -173,6 +173,10 @@ const status_rtn = [ 255, 255, 255, 5, 2, 4, 1, 7, 3, 0,
     255, 255, 11, 12
 ];
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 class VL53L1X {
     constructor(options) {
         this.i2c = options.i2c;
@@ -181,6 +185,10 @@ class VL53L1X {
         this.i2cWrite = util.promisify(this.i2c.write.bind(this.i2c, this.address));
         this.i2cRead = util.promisify(this.i2c.read.bind(this.i2c, this.address));
     }
+
+    ////////////////////////////
+    //Read and Write functions//
+    ////////////////////////////
 
     async writeByte(index, byte) {
         const buffer = [];
@@ -252,9 +260,9 @@ class VL53L1X {
         return dw;
     }
 
-    async sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
+    ///////////////////////////////
+    //Mandatory Ranging functions//
+    ///////////////////////////////
 
     async sensorInit() {
         for (let reg = 0x2D; reg <= 0x87; reg += 1) {
@@ -269,14 +277,15 @@ class VL53L1X {
         await this.writeByte(0x0B, 0); /* start VHV from the previous temperature */
     }
 
+    async startRanging() {
+        await this.writeByte(SYSTEM__MODE_START, 0x40);	/* Enable VL53L1X */
+    }
+
     async getSensorId() {
         const sensorId = await this.readWord(VL53L1_IDENTIFICATION__MODEL_ID);
         return sensorId;
     }
 
-    async startRanging() {
-        await this.writeByte(SYSTEM__MODE_START, 0x40);	/* Enable VL53L1X */
-    }
     async getInterruptPolarity() {
         let temp = await this.readByte(GPIO_HV_MUX__CTRL);
         temp = temp & 0x10;
@@ -295,7 +304,7 @@ class VL53L1X {
     async waitForDataReady() {
         let ready = await this.checkForDataReady();
         while (!ready) {
-            await this.sleep(10);
+            await sleep(1);
             ready = await this.checkForDataReady();
         }
     }
@@ -312,6 +321,11 @@ class VL53L1X {
         const distance = await this.readWord(VL53L1_RESULT__FINAL_CROSSTALK_CORRECTED_RANGE_MM_SD0);
         return distance;
     }
+
+
+    /////////////////////////////
+    //Optional driver functions//
+    /////////////////////////////
 
     async bootState() {
         const tmp = await this.readByte(VL53L1_FIRMWARE__SYSTEM_STATUS);
@@ -351,20 +365,8 @@ class VL53L1X {
                 break;
             default:
                 throw new Error(`Unexpected timing budget ${temp}`);
-                timingBudget = 0;
         }
         return timingBudget;
-    }
-
-    async getDistanceMode() {
-        const tempDM = await this.readByte(PHASECAL_CONFIG__TIMEOUT_MACROP);
-        let distanceMode;
-        if (tempDM === 0x14) {
-            distanceMode = 1;
-        } else if (tempDM === 0x0A) {
-            distanceMode = 2;
-        }
-        return distanceMode;
     }
 
     async setTimingBudgetInMs(timingBudgetInMs) {
@@ -437,6 +439,17 @@ class VL53L1X {
                     break;
             }
         }
+    }
+
+    async getDistanceMode() {
+        const tempDM = await this.readByte(PHASECAL_CONFIG__TIMEOUT_MACROP);
+        let distanceMode;
+        if (tempDM === 0x14) {
+            distanceMode = 1;
+        } else if (tempDM === 0x0A) {
+            distanceMode = 2;
+        }
+        return distanceMode;
     }
 
     async setDistanceMode(mode) {
