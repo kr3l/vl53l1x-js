@@ -528,6 +528,62 @@ class VL53L1X {
         }
         return rangeStatus;
     }
+
+    ///////////////
+    //CALIBRATION//
+    ///////////////
+
+    //Offset
+    getOffset() {
+        return this.readWord(ALGO__PART_TO_PART_RANGE_OFFSET_MM);
+    }
+
+    async setOffset(val) {
+        await this.writeWord(ALGO__PART_TO_PART_RANGE_OFFSET_MM, val*4);
+        await this.writeWord(MM_CONFIG__INNER_OFFSET_MM, 0x0);
+        await this.writeWord(MM_CONFIG__OUTER_OFFSET_MM, 0x0);
+    }
+
+    //Crosstalk
+    getXTalk() {
+        return this.readWord(ALGO__CROSSTALK_COMPENSATION_PLANE_OFFSET_KCPS);
+    }
+
+    async setXTalk(val) {
+        await this.writeWord(ALGO__CROSSTALK_COMPENSATION_X_PLANE_GRADIENT_KCPS, 0X0000);
+        await this.writeWord(ALGO__CROSSTALK_COMPENSATION_Y_PLANE_GRADIENT_KCPS, 0X0000);
+        await this.writeWord(ALGO__CROSSTALK_COMPENSATION_PLANE_OFFSET_KCPS, (val<<9)/1000);
+    }
+
+    //Threshold
+    getDistanceThresholdLow() {
+        return this.readWord(SYSTEM__THRESH_LOW);
+    }
+
+    async setDistanceThresholdLow(val) {
+        //let aux = await this.readByte(SYSTEM__INTERRUPT_CONFIG_GPIO);
+        await this.writeWord(SYSTEM__THRESH_LOW, val);
+    }
+
+    getDistanceThresholdHigh() {
+        return this.readWord(SYSTEM__THRESH_HIGH);
+    }
+
+    async setDistanceThresholdHigh(val) {
+        //let aux = await this.readByte(SYSTEM__INTERRUPT_CONFIG_GPIO);
+        await this.writeWord(SYSTEM__THRESH_HIGH, val);
+    }
+
+    getDistanceThresholdWindow() {
+        return this.readByte(SYSTEM__INTERRUPT_CONFIG_GPIO);
+    }
+
+    async setDistanceThresholdWindow(window_mode) {
+        // In the official implementation this is 0x07 but window_mode can
+        // only be 0, 1, 2 or 3, which can be represented by 2 bits.
+        // For this reason, we are using 0x03 instead.
+        await this.writeByte(SYSTEM__INTERRUPT_CONFIG_GPIO, window_mode & 0x03);
+    }
 }
 
 VL53L1X.DISTANCE_MODE_SHORT = 1;
