@@ -544,6 +544,36 @@ class VL53L1X {
         await this.writeWord(MM_CONFIG__OUTER_OFFSET_MM, 0x0);
     }
 
+    async calculateOffsetCalibration(dist) {
+        //console.log("Calibrating Offset...");
+
+        await this.writeWord(ALGO__PART_TO_PART_RANGE_OFFSET_MM, 0x0*4);
+        await this.writeWord(MM_CONFIG__INNER_OFFSET_MM, 0x0);
+        await this.writeWord(MM_CONFIG__OUTER_OFFSET_MM, 0x0);
+        await this.startRanging();
+
+        let avgDist = 0;
+        for (let i = 0; i < 50; i++) {
+            let tmp = false;
+            while (!tmp) {
+                //console.log("Checking for data ready...");
+                tmp = await this.checkForDataReady();
+                await sleep(1)
+                //console.log(`tmp = ${tmp}`);
+            }
+            //console.log("Data Ready!\n");
+            let distance = await this.getDistance();
+            //console.log(`${distance} mm`);
+            await this.clearInterrupt();
+            avgDist = avgDist + distance;
+        }
+        await this.stopRanging();
+        avgDist = avgDist / 50;
+        //console.log(`Average Distance: ${avgDist} mm\n`);
+        //console.log(`Calibration complete! Offset value set to ${dist-avgDist}\n`)
+        return (dist - avgDist);
+    }
+
     //Crosstalk
     getXTalk() {
         return this.readWord(ALGO__CROSSTALK_COMPENSATION_PLANE_OFFSET_KCPS);
