@@ -327,6 +327,16 @@ class VL53L1X {
     //Optional driver functions//
     /////////////////////////////
 
+    //This function returns the returned signal in kcps
+    async getSignalRate() {
+        return await this.readWord(VL53L1_RESULT__PEAK_SIGNAL_COUNT_RATE_CROSSTALK_CORRECTED_MCPS_SD0);
+    }
+
+    //This function returns the current number of enabled SPADs
+    async getSpadNb() {
+        return await this.readWord(VL53L1_RESULT__DSS_ACTUAL_EFFECTIVE_SPADS_SD0);
+    }
+
     async bootState() {
         const tmp = await this.readByte(VL53L1_FIRMWARE__SYSTEM_STATUS);
         return tmp;
