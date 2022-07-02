@@ -177,6 +177,10 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function getCurrentEpochMs() {
+    return (new Date()).valueOf()
+}
+
 class VL53L1X {
     constructor(options) {
         this.i2c = options.i2c;
@@ -340,6 +344,22 @@ class VL53L1X {
     async bootState() {
         const tmp = await this.readByte(VL53L1_FIRMWARE__SYSTEM_STATUS);
         return tmp;
+    }
+
+    async waitForBooted(timeoutMs) {
+        const hasTimeout =
+            !!timeoutMs &&
+            typeof timeoutMs === 'number' &&
+            !Number.isNaN(timeoutMs) &&
+            Number.isFinite(timeoutMs) &&
+            timeoutMs > 0
+        const startTime = hasTimeout ? getCurrentEpochMs() : 0;
+        while(await this.bootState() !== 3) {
+            if(hasTimeout && (getCurrentEpochMs() - startTime) > timeoutMs) {
+                throw Error('timed out while waiting for device to boot')
+            }
+            await sleep(1)
+        }
     }
 
     async getTimingBudgetInMs() {
