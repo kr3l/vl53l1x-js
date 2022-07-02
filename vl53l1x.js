@@ -190,6 +190,29 @@ class VL53L1X {
         this.i2cRead = util.promisify(this.i2c.read.bind(this.i2c, this.address));
     }
 
+    //change sensor address and wait for it to respond on the new address
+    async changeAddress(newAddress) {
+        await this.writeByte(VL53L1_I2C_SLAVE__DEVICE_ADDRESS, newAddress & 0xFF);
+        this.address = newAddress;
+        const timeoutMs = 2000;
+        const startTime = getCurrentEpochMs();
+        while(true) {
+            const currentMs = getCurrentEpochMs();
+            if(currentMs - startTime >= timeoutMs) {
+                break;
+            }
+            try {
+                await this.waitForBooted(startTime + timeoutMs - currentMs)
+                break;
+            } catch (e) {
+                if (e.code !== 'EREMOTEIO') {
+                    throw e
+                }
+            }
+            await sleep(1);
+        }
+    }
+
     ////////////////////////////
     //Read and Write functions//
     ////////////////////////////
