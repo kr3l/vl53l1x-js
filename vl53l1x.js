@@ -184,7 +184,7 @@ function getCurrentEpochMs() {
 class VL53L1X {
     constructor(options) {
         this.i2c = options.i2c;
-        this.address = options.address || 0x29;
+        this.address = (options.address & 0xFF) || 0x29;
 
         this.i2cWrite = util.promisify(this.i2c.write.bind(this.i2c, this.address));
         this.i2cRead = util.promisify(this.i2c.read.bind(this.i2c, this.address));
@@ -193,7 +193,11 @@ class VL53L1X {
     //change sensor address and wait for it to respond on the new address
     async changeAddress(newAddress) {
         await this.writeByte(VL53L1_I2C_SLAVE__DEVICE_ADDRESS, newAddress & 0xFF);
-        this.address = newAddress;
+
+        this.address = newAddress & 0xFF;
+        this.i2cWrite = util.promisify(this.i2c.write.bind(this.i2c, this.address));
+        this.i2cRead = util.promisify(this.i2c.read.bind(this.i2c, this.address));
+
         const timeoutMs = 2000;
         const startTime = getCurrentEpochMs();
         while(true) {
@@ -203,7 +207,7 @@ class VL53L1X {
             }
             try {
                 await this.waitForBooted(startTime + timeoutMs - currentMs)
-                break;
+                return;
             } catch (e) {
                 if (e.code !== 'EREMOTEIO') {
                     throw e
@@ -211,6 +215,7 @@ class VL53L1X {
             }
             await sleep(1);
         }
+        throw new Error('timed out while changing address');
     }
 
     ////////////////////////////
