@@ -76,6 +76,15 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function waitForEnter(msg) {
+    if (msg && typeof msg === 'string') {
+        process.stdout.write(msg);
+    }
+    return new Promise(resolve => {
+        process.stdin.once('data', () => resolve());
+    });
+}
+
 async function main () {
     const sensor = new VL53L1X ({
         //acrescentar array de sensor addresses
