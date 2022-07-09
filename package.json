@@ -9,6 +9,6 @@
   "author": "kr3l",
   "dependencies": {
     "raspi-i2c": "6.2.1",
-    "pigpio": "^1.2.1"
+    "yargs": "^17.5.1"
   }
 }
