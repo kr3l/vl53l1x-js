@@ -9,6 +9,8 @@ const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 const argv = yargs(hideBin(process.argv)).argv;
 
+const i2c = new I2C();
+
 // -n
 const nSensors = (() => {
     const nSensors = argv.n ?? 1;
@@ -87,6 +89,36 @@ function waitForEnter(msg) {
 
 function numberToHex(n) {
     return `0x${n.toString(16).toUpperCase()}`;
+}
+
+async function getSensors(addresses, changeAddresses = false) {
+    const sensors = new Array(addresses.length)
+        .fill(null)
+        .map((_, i) => new VL53L1X({
+            i2c,
+            address: changeAddresses ? 0x29 : addresses[i]
+        }));
+
+    if (changeAddresses) {
+        console.log(`Setting address${addresses.length > 1 ? 'es' : ''} to ${addresses.map(numberToHex).join(', ')}`);
+
+        for (const i in sensors) {
+            const sensor = sensors[i];
+            await waitForEnter(`Press enter to set address of sensor ${i} to ${numberToHex(addresses[i])}...`);
+            await sensor.waitForBooted();
+            await sensor.sensorInit();
+            await sensor.setDistanceMode(VL53L1X.DISTANCE_MODE_LONG);
+            await sensor.changeAddress(addresses[i]);
+        }
+    } else {
+        for (const sensor of sensors) {
+            await sensor.waitForBooted();
+            await sensor.sensorInit();
+            await sensor.setDistanceMode(VL53L1X.DISTANCE_MODE_LONG);
+        }
+    }
+
+    return sensors;
 }
 
 async function main () {
