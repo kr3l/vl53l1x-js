@@ -121,6 +121,27 @@ async function getSensors(addresses, changeAddresses = false) {
     return sensors;
 }
 
+async function calibrateSensorsOffsets(sensors, savedOffsets) {
+    if (!savedOffsets || savedOffsets.length !== sensors.length) {
+        console.log("Calibrating sensors' offsets (use 140mm distance as reference)...")
+        savedOffsets = new Array(sensors.length).fill(0);
+        for (const i in sensors) {
+            const sensor = sensors[i];
+            await waitForEnter(`Press enter to calibrate sensor ${i} (${numberToHex(sensor.address)})...`);
+            const offset = await sensor.calculateOffsetCalibration(140);
+            console.log(`Sensor ${i} offset: ${offset}`);
+            savedOffsets[i] = offset;
+        }
+    }
+
+    for (const i in sensors) {
+        const sensor = sensors[i];
+        await sensor.setOffset(savedOffsets[i]);
+    }
+
+    return savedOffsets;
+}
+
 async function main () {
     const sensor = new VL53L1X ({
         //acrescentar array de sensor addresses
