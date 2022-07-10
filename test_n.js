@@ -1,3 +1,4 @@
+const fs = require('fs');
 const VL53L1X = require('./vl53l1x');
 const I2C = require('raspi-i2c').I2C;
 const NUM_OF_DATA = 500;
@@ -119,6 +120,48 @@ async function getSensors(addresses, changeAddresses = false) {
     }
 
     return sensors;
+}
+
+async function getSavedJSON(offsetsFile) {
+    const exists = await new Promise((res, rej) => {
+        fs.stat(offsetsFile, (err, stats) => {
+            if (err) {
+                if (err.code === 'ENOENT') {
+                    res(false);
+                } else {
+                    rej(err);
+                }
+            } else {
+                res(stats.isFile());
+            }
+        });
+    });
+
+    if (exists) {
+        return JSON.parse(await new Promise((res, rej) => {
+            fs.readFile(offsetsFile, (err, data) => {
+                if (err) {
+                    rej(err);
+                } else {
+                    res(data.toString("utf8"));
+                }
+            });
+        }));
+    }
+
+    return null;
+}
+
+function saveJSON(offsets, offsetsFile) {
+    return new Promise((res, rej) => {
+        fs.writeFile(offsetsFile, JSON.stringify(offsets), err => {
+            if (err) {
+                rej(err);
+            } else {
+                res();
+            }
+        });
+    });
 }
 
 async function calibrateSensorsOffsets(sensors, savedOffsets) {
