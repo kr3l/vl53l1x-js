@@ -85,6 +85,10 @@ function waitForEnter(msg) {
     });
 }
 
+function numberToHex(n) {
+    return `0x${n.toString(16).toUpperCase()}`;
+}
+
 async function main () {
     const sensor = new VL53L1X ({
         //acrescentar array de sensor addresses
