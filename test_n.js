@@ -189,6 +189,20 @@ async function calibrateSensorsOffsets(sensors, savedOffsets) {
     return savedOffsets;
 }
 
+// Crosstalk calibration distance
+async function getXcd(sensor) {
+    // console.log(`Press enter to get the cross-talk calibration distance of sensor at address ${numberToHex(sensor.address)}...`);
+    const startTime = getCurrentEpochMs();
+    let xcd = 0;
+    await sensor.startRanging();
+    while (getCurrentEpochMs() - startTime < 10000) {
+        xcd = Math.max(xcd, await sensor.getDistance());
+        await sleep(1);
+    }
+    await sensor.stopRanging();
+    return xcd;
+}
+
 async function main () {
     const sensor = new VL53L1X ({
         //acrescentar array de sensor addresses
