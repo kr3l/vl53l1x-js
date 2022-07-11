@@ -203,6 +203,28 @@ async function getXcd(sensor) {
     return xcd;
 }
 
+async function calibrateSensorsXTalk(sensors, savedXTalks) {
+    if (!savedXTalks || savedXTalks.length !== sensors.length) {
+        console.log("Calibrating sensors' xtalk (increase the distance from the sensor over 10 seconds)...")
+        savedXTalks = new Array(sensors.length).fill(0);
+        for (const i in sensors) {
+            const sensor = sensors[i];
+            await waitForEnter(`Press enter to start calibrating sensor ${i}'s xtalk (${numberToHex(sensor.address)})...`);
+            const xcd = await getXcd(sensor);
+            await waitForEnter(`Set the distance from sensor ${i} to ${xcd}mm and press enter...`);
+            const xtalk = await sensor.calculateOffsetCalibration(xcd);
+            console.log(`Sensor ${i} xtalk: ${xtalk} (xcd = ${xcd})`);
+            savedXTalks[i] = xtalk;
+        }
+    }
+
+    for (const i in sensors) {
+        await sensors[i].setXTalk(savedXTalks[i]);
+    }
+
+    return savedXTalks;
+}
+
 async function main () {
     const sensor = new VL53L1X ({
         //acrescentar array de sensor addresses
