@@ -92,6 +92,10 @@ function numberToHex(n) {
     return `0x${n.toString(16).toUpperCase()}`;
 }
 
+function getCurrentEpochMs() {
+    return (new Date()).valueOf()
+}
+
 async function getSensors(addresses, changeAddresses = false) {
     const sensors = new Array(addresses.length)
         .fill(null)
