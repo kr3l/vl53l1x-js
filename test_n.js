@@ -1,7 +1,7 @@
 const fs = require('fs');
 const VL53L1X = require('./vl53l1x');
 const I2C = require('raspi-i2c').I2C;
-const NUM_OF_DATA = 500;
+const NUM_OF_DATA = 100;
 const NUM_OF_CAL = 50;
 const DEFAULT_OFFSETS_FILE = "./vl53l1x-offsets.json";
 const DEFAULT_XTALKS_FILE = "./vl53l1x-xtalks.json";
@@ -270,52 +270,38 @@ async function main () {
 
             //console.log({xTalks});
         }
-        let real = 450; //real distance;
-        //await waitForEnter(`Press enter to set address of sensor ${i} to ${numberToHex(addresses[i])}...`);
+        let real = 50; //real distance;
         let measures = [real];
         let distance = 0;
         let header = ['real distance'];
         for (const i in sensors) {
             const sensor = sensors[i];
-            await sensor.startRanging();
-            
-            distance = await sensor.getDistance();
-            await sleep(10);
-            //console.log(distance);
-
-            measures.push([distance]);
             header.push(sensor.address);
-            await sensor.stopRanging();
         }
         console.log(header.join(","));
-        console.log(measures.join(","));
-        measures = [real];
 
-        for (let j = 0; j < NUM_OF_DATA-1; j++) {
-            for (const i in sensors) {
-                const sensor = sensors[i];
-                await sensor.startRanging();
-                
-                distance = await sensor.getDistance();
-                await sleep(10);
-                //console.log(distance);
-    
-                measures.push([distance]);
-                header.push(sensor.address);
-                await sensor.stopRanging();
+        while(real <= 4000) {
+            await waitForEnter(`Set the distance from sensors to ${real/10}cm. Press ENTER to continue...`);
+            for (let j = 0; j < NUM_OF_DATA; j++) {
+                for (const i in sensors) {
+                    const sensor = sensors[i];
+                    await sensor.startRanging();
+                    
+                    distance = await sensor.getDistance();
+                    await sleep(10);
+        
+                    measures.push([distance]);
+                    header.push(sensor.address);
+                    await sensor.stopRanging();
+                }
+                console.log(measures.join(","));
+                measures = [real];
             }
-            console.log(measures.join(","));
-            measures = [real];
+            
+            real += 50;
         }
+        
 
-        /*let data = [];
-        for (let i = 0; i < NUM_OF_DATA ; i++) {
-            for(let j = 0; j < sensors.length ; j++) {
-                data.push = [measures[j][i]];
-            }
-            //console.log(data.join(","));
-            data = [];
-        }*/
 
     } catch (e) {
         console.error(e)
