@@ -120,6 +120,7 @@ async function getSensors(addresses, changeAddresses = false) {
             await sensor.waitForBooted();
             await sensor.sensorInit();
             await sensor.setDistanceMode(VL53L1X.DISTANCE_MODE_LONG);
+            
         }
     }
 
@@ -212,7 +213,8 @@ async function calibrateSensorsXTalk(sensors, savedXTalks) {
             await waitForEnter(`Press enter to start calibrating sensor ${i}'s xtalk (${numberToHex(sensor.address)})...`);
             const xcd = await getXcd(sensor);
             await waitForEnter(`Set the distance from sensor ${i} to ${xcd}mm and press enter...`);
-            const xtalk = await sensor.calculateOffsetCalibration(xcd);
+            //Aqui estava calculateOffsetCalibration em vez de calibrateSensorsXTalk
+            const xtalk = await sensor.calculateXTalkCalibration(xcd);
             console.log(`Sensor ${i} xtalk: ${xtalk} (xcd = ${xcd})`);
             savedXTalks[i] = xtalk;
         }
@@ -268,15 +270,53 @@ async function main () {
 
             //console.log({xTalks});
         }
-
+        let real = 450; //real distance;
+        //await waitForEnter(`Press enter to set address of sensor ${i} to ${numberToHex(addresses[i])}...`);
+        let measures = [real];
+        let distance = 0;
+        let header = ['real distance'];
         for (const i in sensors) {
             const sensor = sensors[i];
             await sensor.startRanging();
+            
+            distance = await sensor.getDistance();
+            await sleep(10);
+            //console.log(distance);
 
-            console.log(await sensor.getDistance());
-
+            measures.push([distance]);
+            header.push(sensor.address);
             await sensor.stopRanging();
         }
+        console.log(header.join(","));
+        console.log(measures.join(","));
+        measures = [real];
+
+        for (let j = 0; j < NUM_OF_DATA-1; j++) {
+            for (const i in sensors) {
+                const sensor = sensors[i];
+                await sensor.startRanging();
+                
+                distance = await sensor.getDistance();
+                await sleep(10);
+                //console.log(distance);
+    
+                measures.push([distance]);
+                header.push(sensor.address);
+                await sensor.stopRanging();
+            }
+            console.log(measures.join(","));
+            measures = [real];
+        }
+
+        /*let data = [];
+        for (let i = 0; i < NUM_OF_DATA ; i++) {
+            for(let j = 0; j < sensors.length ; j++) {
+                data.push = [measures[j][i]];
+            }
+            //console.log(data.join(","));
+            data = [];
+        }*/
+
     } catch (e) {
         console.error(e)
         exitCode = 1;
@@ -315,11 +355,6 @@ async function main () {
     const iM = await sensors.getInterMeasurementInMs();
     console.log(`inter measurement interval = ${iM}ms`);
     
-    /*const jsonData = fetch(configs.json); 
-    const file = JSON.parse(jsonData);
-    console.log("tou aqui");
-    console.log(file);*/
-
     
     try {
 
