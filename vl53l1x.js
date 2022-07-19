@@ -703,6 +703,45 @@ class VL53L1X {
         // For this reason, we are using 0x03 instead.
         await this.writeByte(SYSTEM__INTERRUPT_CONFIG_GPIO, window_mode & 0x03);
     }
+
+
+    //ROI - Region of Interest
+    async setROICenter(roi_center) {
+        await this.writeByte(ROI_CONFIG__USER_ROI_CENTRE_SPAD, roi_center);
+    }
+
+    async getROICenter() {
+        return this.readByte(ROI_CONFIG__USER_ROI_CENTRE_SPAD);
+    }
+
+    async setROI(x, y) {
+        let OpticalCenter = await this.readByte(VL53L1_ROI_CONFIG__MODE_ROI_CENTRE_SPAD);
+        if (x < 4) {
+            x = 4;
+        }
+        if (x > 16) {
+            x = 16;
+        }
+        if (y < 4) {
+            y = 4;
+        }
+        if (y > 16) {
+            y = 16;
+        }
+        if (x > 10 || y > 10) {
+            OpticalCenter = 199;
+        }
+        await this.writeByte(ROI_CONFIG__USER_ROI_CENTRE_SPAD, OpticalCenter);
+        await this.writeByte(ROI_CONFIG__USER_ROI_REQUESTED_GLOBAL_XY_SIZE, (y - 1) << 4 | (x - 1));
+    }
+
+    async getROI_XY()
+    {
+        return this.readByte(ROI_CONFIG__USER_ROI_REQUESTED_GLOBAL_XY_SIZE);
+        //*ROI_X = ((uint16_t)tmp & 0x0F) + 1;
+        //*ROI_Y = (((uint16_t)tmp & 0xF0) >> 4) + 1;
+    }
+
 }
 
 VL53L1X.DISTANCE_MODE_SHORT = 1;

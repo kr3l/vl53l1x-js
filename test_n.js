@@ -1,7 +1,7 @@
 const fs = require('fs');
 const VL53L1X = require('./vl53l1x');
 const I2C = require('raspi-i2c').I2C;
-const NUM_OF_DATA = 100;
+const NUM_OF_DATA = 128;
 const NUM_OF_CAL = 50;
 const DEFAULT_OFFSETS_FILE = "./vl53l1x-offsets.json";
 const DEFAULT_XTALKS_FILE = "./vl53l1x-xtalks.json";
@@ -233,6 +233,19 @@ async function main () {
     const sensors = await getSensors(addresses, shouldInitAddresses);
 
     let exitCode = 0;
+    let roi_center = await sensors[0].getROICenter();
+    console.log(`ROI Center: ${roi_center}`);
+
+    let roi_xy = await sensors[0].getROI_XY();
+    console.log(`ROI_XY: ${roi_xy}`);
+    
+    await sensors[0].setROI(4,4);
+    roi_xy = await sensors[0].getROI_XY();
+    console.log(`ROI_XY: ${roi_xy}`);
+    
+    await sensors[0].setROI(16,16);
+    roi_xy = await sensors[0].getROI_XY();
+    console.log(`ROI_XY: ${roi_xy}`);
 
     try {
         // console.log(sensors);
